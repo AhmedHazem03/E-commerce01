@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Warm Luxury brand tokens */
+  --bg: #F0EEE9;
+  --bg-2: #6B4F3A;
+  --accent: #F5C842;
+  --text: #1A1A1A;
+  --text-cta: #8B2E5A;
+
+  /* Semantic tokens (referenced by tailwind.config.ts) */
+  --primary: #8B2E5A;
+  --primary-foreground: #F0EEE9;
+  --danger: #DC2626;
+  --danger-foreground: #FFFFFF;
+  --surface: #FFFFFF;
+  --surface-foreground: #1A1A1A;
+
+  /* Layout tokens */
+  --radius: 0.5rem;
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+@keyframes logo-glow {
+  0%, 100% { box-shadow: 0 0 18px 4px rgba(139, 92, 246, 0.35); }
+  50%       { box-shadow: 0 0 32px 10px rgba(139, 92, 246, 0.65); }
+}
+
+@keyframes float-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-ticker   { animation: ticker 30s linear infinite; }
+.animate-logo-glow { animation: logo-glow 3s ease-in-out infinite; }
+.animate-float-up  { animation: float-up 0.25s ease-out forwards; }

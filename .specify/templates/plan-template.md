@@ -31,7 +31,19 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+| Gate | Rule (from constitution.md) | Status |
+|------|-----------------------------|--------|
+| GATE-1 TypeScript | All source files in `app/` and `components/` MUST use `.tsx`/`.ts`. No `.jsx`/`.js`. | [ ] |
+| GATE-2 Stack lock | `package.json` MUST use exact pinned versions. No `"latest"`, no `"14.x"` ranges. | [ ] |
+| GATE-3 Route groups | `(store)/` and `(dashboard)/` MUST NOT cross-import each other. Shared code in `lib/`. | [ ] |
+| GATE-4 Checkout steps | Checkout flow MUST be exactly 2 steps. Third step or mandatory OTP = blocking violation. | [ ] |
+| GATE-5 Dashboard auth | `middleware.ts` MUST gate all `(dashboard)/` routes via JWT. Unprotected dashboard = blocking. | [ ] |
+| GATE-6 Server separation | UI components MUST NOT import Prisma or query DB directly. API calls only via `app/api/`. | [ ] |
+| GATE-7 Cart persistence | Cart MUST persist to `localStorage` via `lib/cart.ts`. Coupon field hidden by default. | [ ] |
+| GATE-8 Secret hygiene | No hard-coded credentials. All secrets via env vars. | [ ] |
+
+> **ERROR policy**: Any unchecked gate at Phase 1 re-evaluation blocks implementation.
+> Justified exceptions MUST be documented in the Complexity Tracking table below.
 
 ## Project Structure
 
