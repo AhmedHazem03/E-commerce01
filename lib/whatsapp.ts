@@ -26,6 +26,8 @@ const PAYMENT_LABELS: Record<string, string> = {
   CARD: "بطاقة",
 };
 
+
+
 /**
  * Builds the wa.me deep-link URL with a pre-filled Arabic order summary.
  * Returns null when the store has no WhatsApp number configured.
