@@ -286,19 +286,6 @@ export default function StoreLayout({
               </button>
             )}
 
-            {settings?.whatsappNumber && (
-              <a
-                href={`https://wa.me/${settings.whatsappNumber.replace(/\D/g, "")}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="تواصل عبر واتساب"
-                className="hidden sm:inline-flex items-center gap-1.5 text-[11.5px] font-bold text-white bg-gradient-to-l from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 rounded-full px-4 py-2 shadow-md shadow-emerald-500/20 hover:shadow-emerald-500/40 transition-all duration-200 hover:scale-105 font-cairo"
-              >
-                <MessageCircle size={13} strokeWidth={2.5} />
-                واتساب
-              </a>
-            )}
-
             <NotificationBell />
             {cartTrigger}
 

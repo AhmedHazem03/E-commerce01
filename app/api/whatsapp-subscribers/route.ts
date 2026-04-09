@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
 import { z } from "zod";
 
 const SubscribeSchema = z.object({
@@ -20,17 +19,5 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  try {
-    await prisma.whatsAppSubscriber.upsert({
-      where: { phone: parsed.data.phone },
-      create: { phone: parsed.data.phone },
-      update: {},
-    });
-    return NextResponse.json({ ok: true });
-  } catch {
-    return NextResponse.json(
-      { error: "حدث خطأ — حاول مرة أخرى" },
-      { status: 500 }
-    );
-  }
+  return NextResponse.json({ ok: true });
 }

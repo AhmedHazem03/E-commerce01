@@ -96,29 +96,30 @@ export async function getProducts(filters: ProductFilters = {}): Promise<{
   const limit = Math.min(100, Math.max(1, filters.limit ?? 20));
   const skip = (page - 1) * limit;
 
-  const where = {
-    isActive: true,
-    ...(filters.category ? { category: filters.category } : {}),
-    ...(filters.minPrice !== undefined || filters.maxPrice !== undefined
-      ? {
-          price: {
-            ...(filters.minPrice !== undefined ? { gte: filters.minPrice } : {}),
-            ...(filters.maxPrice !== undefined ? { lte: filters.maxPrice } : {}),
-          },
-        }
-      : {}),
-    ...(filters.search
-      ? {
-          OR: [
-            { name: { contains: filters.search, mode: "insensitive" as const } },
-            { description: { contains: filters.search, mode: "insensitive" as const } },
-            { category: { contains: filters.search, mode: "insensitive" as const } },
-          ],
-        }
-      : {}),
-    // When searching, category filter must be compatible with OR above
-    ...(filters.search && filters.category ? { category: filters.category } : {})
-  };
+  const where: Record<string, unknown> = { isActive: true };
+
+  // Category filter (exact match — takes priority over search category token)
+  if (filters.category) {
+    where.category = filters.category;
+  }
+
+  // Price range filter
+  if (filters.minPrice !== undefined || filters.maxPrice !== undefined) {
+    where.price = {
+      ...(filters.minPrice !== undefined ? { gte: filters.minPrice } : {}),
+      ...(filters.maxPrice !== undefined ? { lte: filters.maxPrice } : {}),
+    };
+  }
+
+  // Full-text search across name, description, category
+  if (filters.search) {
+    const mode = "insensitive" as const;
+    where.OR = [
+      { name: { contains: filters.search, mode } },
+      { description: { contains: filters.search, mode } },
+      { category: { contains: filters.search, mode } },
+    ];
+  }
 
   const orderBy =
     filters.sortBy === "sold"
