@@ -20,7 +20,7 @@ export default function ProductGridSkeleton({
               key={i}
               className="flex flex-col rounded-2xl overflow-hidden border border-walnut/10 bg-white animate-pulse"
             >
-              <div className="aspect-square w-full bg-walnut/10" />
+              <div className="aspect-[3/4] w-full bg-walnut/10" />
               <div className="flex flex-col gap-2 p-3">
                 <div className="h-4 bg-walnut/10 rounded w-3/4" />
                 <div className="h-3 bg-walnut/10 rounded w-1/2" />

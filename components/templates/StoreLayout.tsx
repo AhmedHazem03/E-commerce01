@@ -1,6 +1,7 @@
 "use client";
 
-import { ReactNode, useState, useEffect } from "react";
+import { ReactNode, useState, useEffect, useRef, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { Cairo } from "next/font/google";
@@ -18,6 +19,8 @@ import {
   Award,
   Menu,
   X,
+  Search,
+  ArrowLeft,
 } from "lucide-react";
 import NotificationBell from "@/components/organisms/NotificationBell";
 import type { IStoreSettings } from "@/lib/interfaces";
@@ -54,9 +57,13 @@ export default function StoreLayout({
   settings,
 }: StoreLayoutProps) {
   const storeName = settings?.storeName ?? "المتجر";
+  const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const onScroll = () => {
@@ -69,6 +76,31 @@ export default function StoreLayout({
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
+  const openSearch = () => {
+    setSearchOpen(true);
+    setTimeout(() => searchInputRef.current?.focus(), 50);
+  };
+
+  const closeSearch = () => {
+    setSearchOpen(false);
+    setSearchQuery("");
+  };
+
+  const handleSearch = (e: FormEvent) => {
+    e.preventDefault();
+    const q = searchQuery.trim();
+    if (!q) return;
+    closeSearch();
+    router.push(`/products?q=${encodeURIComponent(q)}`);
+  };
+
+  /** Normalize Egyptian phone → wa.me URL */
+  const waUrl = (phone: string) => {
+    const digits = phone.replace(/\D/g, "");
+    const normalized = digits.startsWith("0") ? "2" + digits : digits;
+    return `https://wa.me/${normalized}?text=${encodeURIComponent("أهلاً، أريد الاستفسار عن منتج")}`;
+  };
+
   const hasSocial = !!(
     settings?.instagram ||
     settings?.facebook ||
@@ -77,7 +109,7 @@ export default function StoreLayout({
   );
 
   const navLinks = [
-    { href: "/", label: "المنتجات" },
+    { href: "/products", label: "المنتجات" },
     { href: "/orders", label: "طلباتي" },
     ...(settings?.returnPolicy
       ? [{ href: "/policies/returns", label: "سياسة الإرجاع" }]
@@ -151,16 +183,19 @@ export default function StoreLayout({
       </div>
 
       {/* ══════════════════════════════════════════════
-          MAIN HEADER — glassmorphism + depth on scroll
+          MAIN HEADER — warm glassmorphism + brand depth
       ══════════════════════════════════════════════ */}
       <header
         className={`sticky top-0 z-30 transition-all duration-500 ${
           scrolled
-            ? "bg-white/75 backdrop-blur-2xl shadow-[0_2px_40px_-4px_rgba(108,71,255,0.12)] border-b border-violet-100/50"
-            : "bg-white/50 backdrop-blur-lg border-b border-gray-100/60"
+            ? "bg-warm-bg/96 backdrop-blur-2xl shadow-[0_4px_28px_-4px_rgba(139,46,90,0.13)] border-b border-walnut/10"
+            : "bg-warm-bg/75 backdrop-blur-xl border-b border-walnut/[0.07]"
         }`}
       >
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 h-[68px] flex items-center justify-between gap-4">
+        {/* Permanent thin gold accent at very top */}
+        <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-l from-transparent via-gold/70 to-transparent" />
+
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 h-[76px] flex items-center justify-between gap-4">
 
           {/* ── Logo ── */}
           <Link
@@ -172,36 +207,37 @@ export default function StoreLayout({
               <Image
                 src={settings.logo}
                 alt={storeName}
-                width={44}
-                height={44}
-                sizes="44px"
+                width={46}
+                height={46}
+                sizes="46px"
                 className="h-11 w-auto object-contain rounded-2xl transition-transform duration-300 group-hover:scale-105"
               />
             ) : (
-              <div className="animate-logo-glow h-10 w-10 rounded-2xl bg-gradient-to-br from-violet-500 via-purple-600 to-indigo-700 flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
-                <ShoppingBag size={19} className="text-white" strokeWidth={2.5} />
+              <div className="animate-logo-glow h-11 w-11 rounded-2xl bg-gradient-to-br from-plum via-walnut to-plum flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 shadow-lg shadow-plum/20">
+                <ShoppingBag size={20} className="text-white" strokeWidth={2.5} />
               </div>
             )}
-            <div className="hidden sm:flex flex-col leading-none gap-0.5">
-              <span className="text-[17px] font-extrabold font-cairo bg-gradient-to-l from-violet-600 via-purple-500 to-fuchsia-500 bg-clip-text text-transparent leading-none">
+            <div className="hidden sm:flex flex-col leading-none gap-1">
+              <span className="text-[18px] font-extrabold font-cairo text-ink leading-none">
                 {storeName}
               </span>
-              <span className="text-[9px] text-gray-400 font-cairo tracking-[0.18em] uppercase leading-none">
-                متجر إلكتروني
+              <span className="inline-flex items-center gap-1.5 text-[9px] font-bold font-cairo uppercase tracking-[0.15em] text-walnut/60">
+                <span className="h-1 w-1 rounded-full bg-gold inline-block" />
+                متجر أزياء فاخرة
               </span>
             </div>
           </Link>
 
           {/* ── Desktop Nav ── */}
           <nav
-            className="hidden md:flex items-center gap-0.5"
+            className="hidden md:flex items-center gap-1"
             aria-label="التنقل الرئيسي"
           >
             {navLinks.map(({ href, label }) => (
               <Link
                 key={href}
                 href={href}
-                className="relative px-4 py-2 text-sm font-semibold text-gray-600 hover:text-violet-700 rounded-xl hover:bg-violet-50/90 transition-all duration-200 font-cairo after:absolute after:bottom-1 after:right-4 after:left-4 after:h-[2px] after:rounded-full after:bg-violet-500 after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-200 after:origin-right"
+                className="relative px-4 py-2 text-sm font-semibold text-ink/65 hover:text-plum rounded-xl hover:bg-plum/[0.06] transition-all duration-200 font-cairo after:absolute after:bottom-1.5 after:right-4 after:left-4 after:h-[2px] after:rounded-full after:bg-gold after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-200 after:origin-right"
               >
                 {label}
               </Link>
@@ -209,16 +245,56 @@ export default function StoreLayout({
           </nav>
 
           {/* ── Actions ── */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
+            {/* Search — expandable */}
+            {searchOpen ? (
+              <form
+                onSubmit={handleSearch}
+                className="flex items-center gap-1 animate-float-up"
+              >
+                <input
+                  ref={searchInputRef}
+                  type="search"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="ابحثي عن منتج..."
+                  className="w-44 sm:w-56 h-9 rounded-xl border border-walnut/20 bg-warm-bg px-3 text-sm font-cairo text-ink placeholder:text-ink/35 focus:outline-none focus:ring-2 focus:ring-plum/25 transition-all"
+                />
+                <button
+                  type="submit"
+                  className="h-9 w-9 flex items-center justify-center rounded-xl bg-plum text-white hover:bg-plum/90 transition-all shrink-0"
+                  aria-label="تنفيذ البحث"
+                >
+                  <ArrowLeft size={15} strokeWidth={2.5} />
+                </button>
+                <button
+                  type="button"
+                  onClick={closeSearch}
+                  className="h-9 w-9 flex items-center justify-center rounded-xl text-ink/40 hover:text-ink hover:bg-walnut/10 transition-all shrink-0"
+                  aria-label="إغلاق البحث"
+                >
+                  <X size={15} strokeWidth={2} />
+                </button>
+              </form>
+            ) : (
+              <button
+                onClick={openSearch}
+                className="flex h-9 w-9 items-center justify-center rounded-xl text-ink/45 hover:text-plum hover:bg-plum/[0.06] transition-all duration-200"
+                aria-label="بحث"
+              >
+                <Search size={17} strokeWidth={2} />
+              </button>
+            )}
+
             {settings?.whatsappNumber && (
               <a
                 href={`https://wa.me/${settings.whatsappNumber.replace(/\D/g, "")}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="تواصل عبر واتساب"
-                className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-bold text-white bg-gradient-to-l from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 rounded-full px-4 py-2 shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 transition-all duration-200 hover:scale-105 font-cairo"
+                className="hidden sm:inline-flex items-center gap-1.5 text-[11.5px] font-bold text-white bg-gradient-to-l from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 rounded-full px-4 py-2 shadow-md shadow-emerald-500/20 hover:shadow-emerald-500/40 transition-all duration-200 hover:scale-105 font-cairo"
               >
-                <MessageCircle size={12} strokeWidth={2.5} />
+                <MessageCircle size={13} strokeWidth={2.5} />
                 واتساب
               </a>
             )}
@@ -229,13 +305,13 @@ export default function StoreLayout({
             {/* Mobile hamburger */}
             <button
               onClick={() => setMobileOpen((v) => !v)}
-              className="md:hidden flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200/80 bg-white/80 hover:bg-gray-50 transition-colors"
+              className="md:hidden flex h-9 w-9 items-center justify-center rounded-xl border border-walnut/15 bg-warm-bg hover:bg-walnut/10 transition-all duration-200"
               aria-label="القائمة"
             >
               {mobileOpen ? (
-                <X size={17} className="text-gray-700" />
+                <X size={17} className="text-ink" />
               ) : (
-                <Menu size={17} className="text-gray-700" />
+                <Menu size={17} className="text-ink" />
               )}
             </button>
           </div>
@@ -243,15 +319,15 @@ export default function StoreLayout({
 
         {/* ── Mobile Nav Drawer ── */}
         {mobileOpen && (
-          <div className="animate-float-up md:hidden border-t border-gray-100/70 bg-white/95 backdrop-blur-2xl px-4 py-3 space-y-0.5">
+          <div className="animate-float-up md:hidden border-t border-walnut/10 bg-warm-bg/98 backdrop-blur-2xl px-4 py-4 space-y-1">
             {navLinks.map(({ href, label }) => (
               <Link
                 key={href}
                 href={href}
                 onClick={() => setMobileOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-gray-700 hover:text-violet-700 hover:bg-violet-50 rounded-xl transition-all font-cairo"
+                className="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-ink/75 hover:text-plum hover:bg-plum/[0.05] rounded-xl transition-all font-cairo"
               >
-                <span className="h-1.5 w-1.5 rounded-full bg-violet-400 shrink-0" />
+                <span className="h-1.5 w-1.5 rounded-full bg-gold shrink-0" />
                 {label}
               </Link>
             ))}
@@ -260,7 +336,7 @@ export default function StoreLayout({
                 href={`https://wa.me/${settings.whatsappNumber.replace(/\D/g, "")}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-emerald-700 hover:bg-emerald-50 rounded-xl transition-all font-cairo"
+                className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-emerald-700 hover:bg-emerald-50/60 rounded-xl transition-all font-cairo"
               >
                 <MessageCircle size={15} className="shrink-0" />
                 تواصل عبر واتساب
@@ -269,9 +345,9 @@ export default function StoreLayout({
           </div>
         )}
 
-        {/* Gradient accent line on scroll */}
+        {/* Gold gradient accent line on scroll */}
         {scrolled && (
-          <div className="absolute bottom-0 inset-x-0 h-[1.5px] bg-gradient-to-l from-transparent via-violet-400/40 to-transparent" />
+          <div className="absolute bottom-0 inset-x-0 h-[1.5px] bg-gradient-to-l from-transparent via-gold/55 to-transparent" />
         )}
       </header>
 
@@ -522,13 +598,16 @@ export default function StoreLayout({
       ══════════════════════════════════════════════ */}
       {settings?.whatsappNumber && (
         <a
-          href={`https://wa.me/${settings.whatsappNumber.replace(/\D/g, "")}`}
+          href={waUrl(settings.whatsappNumber)}
           target="_blank"
           rel="noopener noreferrer"
           aria-label="تواصل عبر واتساب"
-          className="fixed bottom-6 left-4 z-40 h-[52px] w-[52px] rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center shadow-xl shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:scale-110 active:scale-95 transition-all duration-200"
+          className="group fixed bottom-6 left-4 z-50 h-[54px] w-[54px] rounded-full flex items-center justify-center shadow-2xl shadow-emerald-500/35 hover:scale-110 active:scale-95 transition-all duration-200 bg-[#25D366] hover:bg-[#20ba58]"
         >
-          <MessageCircle size={22} className="text-white" strokeWidth={2.5} />
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="white" className="w-7 h-7" aria-hidden="true">
+            <path d="M16.002 3C9.374 3 4 8.373 4 15.001c0 2.126.558 4.115 1.53 5.845L4 29l8.38-1.505A12.003 12.003 0 0016.002 28c6.627 0 12-5.373 12-12.001C28.002 8.373 22.63 3 16.002 3zm6.308 16.467c-.265.742-1.538 1.415-2.098 1.464-.56.048-1.09.265-3.673-.765-3.1-1.24-5.08-4.438-5.233-4.643-.154-.205-1.24-1.65-1.24-3.148 0-1.5.787-2.237 1.065-2.544.278-.308.607-.385.81-.385.205 0 .41.002.59.01.189.008.444-.072.695.53.257.616.876 2.13.953 2.286.077.154.128.335.026.539-.103.205-.154.333-.308.513-.153.179-.322.4-.46.537-.154.153-.314.318-.135.624.18.307.8 1.32 1.716 2.137 1.179 1.05 2.172 1.374 2.48 1.528.307.154.485.128.664-.077.18-.205.769-.897 1.974-.897 0 0 .282.01.42.075.154.072 2.08.98 2.08.98s.364.153.41.435c.056.334-.206 1.08-.535 1.845z" />
+          </svg>
+          <span className="absolute inset-0 rounded-full bg-[#25D366] animate-ping opacity-25 group-hover:opacity-0" />
         </a>
       )}
 
@@ -536,7 +615,7 @@ export default function StoreLayout({
         <button
           onClick={scrollToTop}
           aria-label="العودة للأعلى"
-          className="animate-float-up fixed bottom-6 right-4 z-40 h-11 w-11 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-violet-500/30 hover:shadow-violet-500/55 hover:scale-110 active:scale-95 transition-all duration-200"
+          className="animate-float-up fixed bottom-6 right-4 z-40 h-11 w-11 rounded-2xl bg-gradient-to-br from-plum to-walnut flex items-center justify-center shadow-lg shadow-plum/25 hover:shadow-plum/45 hover:scale-110 active:scale-95 transition-all duration-200"
         >
           <ChevronUp size={20} className="text-white" strokeWidth={2.5} />
         </button>

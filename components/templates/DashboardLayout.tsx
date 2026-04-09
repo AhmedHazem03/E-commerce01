@@ -12,6 +12,7 @@ import {
   Settings,
   ShoppingBag,
   LogOut,
+  LayoutDashboard,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -19,6 +20,7 @@ const NAV_ITEMS = [
   { href: "/dashboard/products", icon: Package, label: "المنتجات" },
   { href: "/dashboard/abandoned-carts", icon: ShoppingBag, label: "عربات مهجورة" },
   { href: "/dashboard/analytics", icon: BarChart2, label: "الإحصائيات" },
+  { href: "/dashboard/landing", icon: LayoutDashboard, label: "الصفحة الرئيسية" },
   { href: "/dashboard/settings", icon: Settings, label: "الإعدادات" },
 ];
 

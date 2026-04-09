@@ -21,9 +21,9 @@ const sections = [
     body: "ستايل يعبّر عنك بلمسة فنية",
   },
   {
-    image: "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=80&w=1200&auto=format&fit=crop",
-    title: "هدايا تُفرحها",
-    body: "اخترناها باهتمام لتبهر أحبابك",
+    image: "https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=1200&auto=format&fit=crop",
+    title: "ستايل يميّزك",
+    body: "إطلالة تعبّر عنك في كل مناسبة",
   },
   {
     image: "https://images.unsplash.com/photo-1607083206968-13611e3d76db?q=80&w=1200&auto=format&fit=crop",

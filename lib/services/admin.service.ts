@@ -91,6 +91,7 @@ export async function updateStoreSettings(
   if (data.facebook !== undefined) update.facebook = data.facebook;
   if (data.tiktok !== undefined) update.tiktok = data.tiktok;
   if (data.returnPolicy !== undefined) update.returnPolicy = data.returnPolicy;
+  if (data.landingPage !== undefined) update.landingPage = data.landingPage;
 
   if (Object.keys(update).length === 0) return;
 

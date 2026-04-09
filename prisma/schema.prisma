@@ -237,6 +237,7 @@ model Admin {
   facebook        String?        // URL
   tiktok          String?        // URL
   returnPolicy    String?        // Markdown/text — return & exchange policy
+  landingPage     Json?          // Landing page sections config (JSON)
   // ────────────────────────────────────────────────────────
   notifications   Notification[]
   createdAt       DateTime       @default(now())

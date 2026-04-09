@@ -20,7 +20,7 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
       dir="rtl"
     >
       {/* Image */}
-      <div className="relative aspect-square w-full bg-warm-bg overflow-hidden">
+      <div className="relative aspect-[3/4] w-full bg-warm-bg overflow-hidden">
         {mainImage ? (
           <Image
             src={mainImage.url}
@@ -28,7 +28,7 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             priority={priority}
-            className="object-cover group-hover:scale-110 transition-transform duration-500"
+            className="object-cover object-center group-hover:scale-110 transition-transform duration-500"
           />
         ) : (
           <div className="h-full w-full bg-walnut/10 flex items-center justify-center">

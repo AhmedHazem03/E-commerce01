@@ -8,7 +8,7 @@ export default function ProductsLoading() {
             key={i}
             className="flex flex-col rounded-lg overflow-hidden border border-gray-200 bg-white animate-pulse"
           >
-            <div className="aspect-square w-full bg-gray-200" />
+            <div className="aspect-[3/4] w-full bg-gray-200" />
             <div className="flex flex-col gap-2 p-3">
               <div className="h-4 bg-gray-200 rounded w-3/4" />
               <div className="h-3 bg-gray-200 rounded w-1/2" />

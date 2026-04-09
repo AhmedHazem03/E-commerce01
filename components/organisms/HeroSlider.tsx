@@ -5,6 +5,8 @@ import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, EffectFade, Pagination } from "swiper/modules";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState } from "react";
 
 import "swiper/css";
 import "swiper/css/effect-fade";
@@ -16,12 +18,39 @@ interface HeroSliderProps {
   slides: HeroSlide[];
 }
 
-/**
- * HeroSlider — Client Component
- * يُحمَّل lazily بعد ما Next.js يرسم الصورة الأولى في SSR.
- * المسؤوليات: Swiper autoplay، fade effect، pagination، scroll indicator.
- */
+/** Splits headline into words, animates each word with a stagger */
+function KineticHeadline({ text }: { text: string }) {
+  const words = text.split(" ");
+  return (
+    <h1
+      className="font-cairo font-black text-warm-bg text-4xl md:text-6xl lg:text-7xl leading-tight drop-shadow-2xl"
+      dir="rtl"
+    >
+      <AnimatePresence mode="wait">
+        <motion.span
+          key={text}
+          className="flex flex-wrap justify-center gap-x-3 gap-y-1"
+        >
+          {words.map((word, i) => (
+            <motion.span
+              key={i}
+              initial={{ opacity: 0, y: 30, filter: "blur(6px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              transition={{ duration: 0.5, delay: i * 0.1, ease: "easeOut" }}
+              className="inline-block"
+            >
+              {word}
+            </motion.span>
+          ))}
+        </motion.span>
+      </AnimatePresence>
+    </h1>
+  );
+}
+
 export default function HeroSlider({ slides }: HeroSliderProps) {
+  const [activeIndex, setActiveIndex] = useState(0);
+
   return (
     <>
       <Swiper
@@ -32,6 +61,9 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
         pagination={{ clickable: true }}
         loop
         allowTouchMove={false}
+        onSlideChange={(swiper) =>
+          setActiveIndex(swiper.realIndex)
+        }
         style={{ position: "absolute", inset: 0, height: "100%", width: "100%" }}
       >
         {slides.map((slide, index) => (
@@ -53,15 +85,26 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
               className="absolute inset-0 flex flex-col items-center justify-center gap-8 px-4 text-center z-10"
               dir="rtl"
             >
-              <h1 className="font-cairo font-black text-warm-bg text-4xl md:text-6xl lg:text-7xl leading-tight drop-shadow-2xl">
-                {slide.headline}
-              </h1>
-              <Link
-                href="/products"
-                className="relative inline-block overflow-hidden rounded-full bg-plum text-warm-bg font-cairo font-bold text-lg px-10 py-4 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 before:absolute before:inset-0 before:bg-white/15 before:translate-x-[-110%] hover:before:translate-x-[110%] before:transition-transform before:duration-600 before:ease-out"
+              {activeIndex === index ? (
+                <KineticHeadline text={slide.headline} />
+              ) : (
+                <h1 className="font-cairo font-black text-warm-bg text-4xl md:text-6xl lg:text-7xl leading-tight drop-shadow-2xl opacity-0">
+                  {slide.headline}
+                </h1>
+              )}
+              <motion.div
+                key={`cta-${index}`}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={activeIndex === index ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.4, delay: slides[index].headline.split(" ").length * 0.1 + 0.1 }}
               >
-                تسوق الآن
-              </Link>
+                <Link
+                  href="/products"
+                  className="relative inline-block overflow-hidden rounded-full bg-plum text-warm-bg font-cairo font-bold text-lg px-10 py-4 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 before:absolute before:inset-0 before:bg-white/15 before:translate-x-[-110%] hover:before:translate-x-[110%] before:transition-transform before:duration-600 before:ease-out"
+                >
+                  تسوق الآن
+                </Link>
+              </motion.div>
             </div>
           </SwiperSlide>
         ))}

@@ -45,6 +45,15 @@ const config: Config = {
         lg: "var(--spacing-lg)",
         xl: "var(--spacing-xl)",
       },
+      keyframes: {
+        marquee: {
+          "0%": { transform: "translateX(0%)" },
+          "100%": { transform: "translateX(-50%)" },
+        },
+      },
+      animation: {
+        marquee: "marquee 28s linear infinite",
+      },
     },
   },
   plugins: [],

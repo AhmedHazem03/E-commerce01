@@ -24,8 +24,8 @@ const trustItems = [
   },
   {
     icon: Gift,
-    label: "تغليف هدايا مجاني",
-    desc: "بالورق والشريطة",
+    label: "أقمشة فاخرة",
+    desc: "مواد مختارة بعناية",
     color: "text-walnut",
     bg: "bg-walnut/10",
   },

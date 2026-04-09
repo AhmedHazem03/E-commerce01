@@ -7,43 +7,52 @@
 
 import dynamic from "next/dynamic";
 
-/**
- * DynamicHeroSlider — ssr:false مسموح هنا لأن الملف "use client"
- * HeroSection (Server Component) تستورد هذا بدلاً من استخدام dynamic مباشرةً
- * الصورة الأولى تُرسَم في SSR في HeroSection، والـ Slider يتحمّل بعدين
- */
 export const DynamicHeroSlider = dynamic(
   () => import("@/components/organisms/HeroSlider"),
-  {
-    ssr: false,
-    // لا loading fallback — الـ SSR image في HeroSection تملأ المكان
-  }
+  { ssr: false }
 );
 
 export const DynamicScrollytelling = dynamic(
   () => import("@/components/organisms/Scrollytelling"),
   {
-    ssr: true, // framer-motion يدعم SSR — المحتوى مرئي لـ Google
+    ssr: true,
     loading: () => (
-      // minHeight يطابق تقريباً ارتفاع 4 sections (كل section ~280px)
       <div className="w-full bg-warm-bg" style={{ minHeight: "1120px" }} />
     ),
   }
 );
 
-
 export const DynamicUGCWall = dynamic(
   () => import("@/components/organisms/UGCWall"),
   {
-    ssr: false, // Swiper لا يدعم SSR — الـ header مفصول عنه في UGCWall
+    ssr: false,
     loading: () => (
       <div className="w-full bg-warm-bg" style={{ minHeight: "400px" }} />
     ),
   }
 );
 
-
 export const DynamicStickyMobileCTA = dynamic(
   () => import("@/components/organisms/StickyMobileCTA"),
+  { ssr: false }
+);
+
+export const DynamicAnnouncementBar = dynamic(
+  () => import("@/components/organisms/AnnouncementBar"),
+  { ssr: false }
+);
+
+export const DynamicMarqueeTicker = dynamic(
+  () => import("@/components/organisms/MarqueeTicker"),
+  { ssr: false }
+);
+
+export const DynamicWhatsAppButton = dynamic(
+  () => import("@/components/organisms/WhatsAppButton"),
+  { ssr: false }
+);
+
+export const DynamicFlashSaleCountdown = dynamic(
+  () => import("@/components/organisms/FlashSaleCountdown"),
   { ssr: false }
 );

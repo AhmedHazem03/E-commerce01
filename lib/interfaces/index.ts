@@ -13,4 +13,5 @@ export type {
   OrderSource,
 } from "./order";
 export type { Notification, NotificationType } from "./notification";
-export type { Admin, IStoreSettings } from "./admin";
+export type { Admin, IStoreSettings, LandingPageConfig } from "./admin";
+export { defaultLandingConfig } from "./admin";

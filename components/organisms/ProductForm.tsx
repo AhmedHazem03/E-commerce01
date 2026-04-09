@@ -43,7 +43,7 @@ interface ProductFormProps {
   onCancel?: () => void;
 }
 
-const CATEGORIES = ["ملابس", "إكسسوارات", "هدايا", "أحذية", "أخرى"];
+const CATEGORIES = ["فساتين", "عبايات", "بلوزات", "بناطيل", "جاكيتات", "تنانير"];
 
 export default function ProductForm({ initial, onSuccess, onCancel }: ProductFormProps) {
   const isEditing = Boolean(initial?.id);

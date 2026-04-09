@@ -108,8 +108,16 @@ export async function getProducts(filters: ProductFilters = {}): Promise<{
         }
       : {}),
     ...(filters.search
-      ? { name: { contains: filters.search, mode: "insensitive" as const } }
+      ? {
+          OR: [
+            { name: { contains: filters.search, mode: "insensitive" as const } },
+            { description: { contains: filters.search, mode: "insensitive" as const } },
+            { category: { contains: filters.search, mode: "insensitive" as const } },
+          ],
+        }
       : {}),
+    // When searching, category filter must be compatible with OR above
+    ...(filters.search && filters.category ? { category: filters.category } : {})
   };
 
   const orderBy =
@@ -307,4 +315,70 @@ export async function deleteProduct(id: number): Promise<void> {
     where: { id },
     data: { isActive: false },
   });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Landing Page — New Arrivals & Discounted Products
+// ─────────────────────────────────────────────────────────────────────────────
+
+async function attachRatings(rawProducts: { id: number }[]): Promise<Map<number, number | null>> {
+  const ids = rawProducts.map((p) => p.id);
+  const ratings = await prisma.review.groupBy({
+    by: ["productId"],
+    where: { productId: { in: ids } },
+    _avg: { rating: true },
+  });
+  return new Map(ratings.map((r) => [r.productId, r._avg.rating]));
+}
+
+/** Newest products — sorted by createdAt DESC */
+export async function getNewArrivals(limit = 8): Promise<ProductListItem[]> {
+  const raw = await prisma.product.findMany({
+    where: { isActive: true },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    include: {
+      images: { select: { url: true, isMain: true } },
+      _count: { select: { reviews: true } },
+    },
+  });
+  const ratingMap = await attachRatings(raw);
+  return raw.map((p) => ({
+    id: p.id,
+    name: p.name,
+    price: p.price,
+    oldPrice: p.oldPrice,
+    stock: p.stock,
+    isActive: p.isActive,
+    category: p.category,
+    images: p.images,
+    avgRating: ratingMap.get(p.id) ?? null,
+    reviewCount: p._count.reviews,
+  }));
+}
+
+/** Products with a discount (oldPrice set) — sorted by biggest discount first */
+export async function getDiscountedProducts(limit = 8): Promise<ProductListItem[]> {
+  const raw = await prisma.product.findMany({
+    where: { isActive: true, oldPrice: { not: null } },
+    orderBy: { oldPrice: "desc" },
+    take: limit,
+    include: {
+      images: { select: { url: true, isMain: true } },
+      _count: { select: { reviews: true } },
+    },
+  });
+  const ratingMap = await attachRatings(raw);
+  return raw.map((p) => ({
+    id: p.id,
+    name: p.name,
+    price: p.price,
+    oldPrice: p.oldPrice,
+    stock: p.stock,
+    isActive: p.isActive,
+    category: p.category,
+    images: p.images,
+    avgRating: ratingMap.get(p.id) ?? null,
+    reviewCount: p._count.reviews,
+  }));
 }
